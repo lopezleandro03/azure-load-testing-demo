@@ -1,6 +1,11 @@
 name: Load Test with ALT
 on: [push]
 
+env:
+  AZURE_WEBAPP_NAME: "http://azure-load-testing-demo-beefy.westeurope.cloudapp.azure.com"    # set this to your application's name
+  LOAD_TEST_RESOURCE: "alt-demo"
+  LOAD_TEST_RESOURCE_GROUP: "rg-loadtesting-demo"
+
 jobs:
   deploy-environment:
     runs-on: ubuntu-latest
@@ -11,16 +16,16 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Azure Deployment Environment(ADE) - Create environment
-      uses: azure/CLI@v1
+    - name: 'Azure Load Testing'
+      uses: azure/load-testing@v1
       with:
-        azcliversion: 2.45.0
-        inlineScript: |
-          az extension add --name devcenter --yes
-          az devcenter dev environment create \
-              --dev-center-name dc-devx \
-              --project-name the-phoenix-project \
-              --environment-name workflow-webapp-ephemeral \
-              --environment-type sandbox \
-              --catalog-item-name FunctionApp \
-              --catalog-name  CommunityTemplates
+        loadTestConfigFile: 'load-test-config.yaml'
+        loadTestResource: ${{ env.LOAD_TEST_RESOURCE }}
+        resourceGroup: ${{ env.LOAD_TEST_RESOURCE_GROUP }}
+        env: |
+          [
+            {
+            "name": "webapp",
+            "value": "${{ env.AZURE_WEBAPP_NAME }}"
+            }
+          ]
