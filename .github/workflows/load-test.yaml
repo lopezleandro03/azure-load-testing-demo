@@ -1,4 +1,4 @@
-name: Serverless environment provisioning sample
+name: Load Test with ALT
 on: [push]
 
 jobs:
