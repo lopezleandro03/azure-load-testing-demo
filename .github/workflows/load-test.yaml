@@ -1,4 +1,4 @@
-name: Load Test with ALT
+name: Load Test with ALT Action
 on: [push]
 
 env:
