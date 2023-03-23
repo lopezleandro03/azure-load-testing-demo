@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azureloadtestingdemo
+  namespace: ghost
+  labels:
+    app: ghost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ghost
+  template:
+    metadata:
+      labels:
+        app: ghost
+    spec:
+      # volumes:
+      # - name: ghost-content
+      #   persistentVolumeClaim:
+      #     claimName: ghost-claim
+      containers:
+      - name: ghost
+        image: ghost
+        env:
+        - name: url
+          value: https://azure-load-testing-demo.westeurope.cloudapp.azure.com
+        - name: database__client
+          value: mysql
+        - name: database__connection__host
+          value: mydemoserver32.mysql.database.azure.com
+        - name: database__connection__port
+          value: '3306'
+        - name: database__connection__user
+          value: myadmin@mydemoserver32
+        - name: database__connection__password
+          value: h9R0aQ4WMC
+        - name: database__connection__database
+          value: ghost
+        # volumeMounts:
+        # - name: ghost-content
+        #   mountPath: /var/lib/ghost/content
+        resources:
+          limits:
+            cpu: "1"
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        ports:
+        - name: http
+          containerPort: 2368
+          protocol: TCP
+      restartPolicy: Always

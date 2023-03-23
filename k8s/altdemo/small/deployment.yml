@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: altdemo
+  namespace: altdemo
+  labels:
+    app: altdemo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: altdemo
+  template:
+    metadata:
+      labels:
+        app: altdemo
+    spec:
+      containers:
+      - name: altdemo
+        image: lopezleandro03/azloadtestingdemo:latest
+        env:
+        - name: CONNECTION_STRING
+          value: placeholder
+        resources:
+          limits:
+            cpu: 50m
+            memory: 64Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
