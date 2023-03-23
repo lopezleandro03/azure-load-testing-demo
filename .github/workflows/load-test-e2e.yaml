@@ -1,0 +1,102 @@
+name: App end to end sample
+on: [workflow_dispatch]
+
+jobs:
+  deploy-environment:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Log in with Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure Deployment Environment(ADE) - Create environment
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.45.0
+        inlineScript: |
+          az extension add --name devcenter --yes
+          az devcenter dev environment create \
+              --dev-center-name dc-devx \
+              --project-name the-phoenix-project \
+              --environment-name workflow-on-demand-environment \
+              --environment-type sandbox \
+              --catalog-item-name FunctionApp \
+              --catalog-name  CommunityTemplates
+
+  build-and-deploy-webapp:
+    needs: [deploy-environment]
+    runs-on: ubuntu-latest
+    steps:
+
+    # wait 10 seconds
+    - name: Build kotlin web app
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '10s'
+
+    # wait 10 seconds
+    - name: Deploy kotlin web app to environment
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '10s'
+
+  build-and-deploy-api:
+    needs: [deploy-environment]
+    runs-on: ubuntu-latest
+    steps:
+
+    # wait 10 seconds
+    - name: Build API
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '10s'
+
+    # wait 10 seconds
+    - name: Deploy API to environment
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '10s'
+
+  test:
+    needs: [build-and-deploy-webapp, build-and-deploy-api]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: init
+      run: echo "init"
+
+    - name: init
+      run: echo "Unit testing"
+
+    # wait 10 seconds
+    - name: Load testing
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '30s'
+    
+    - name: publish results
+      run: echo "push results"
+
+  delete-environment:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Log in with Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure Deployment Environment(ADE) - Delete environment
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.45.0
+        inlineScript: |
+          az extension add --name devcenter --yes
+          az devcenter dev environment delete \
+              --dev-center-name dc-devx \
+              --project-name the-phoenix-project \
+              --name workflow-on-demand-environment \
+              --yes
