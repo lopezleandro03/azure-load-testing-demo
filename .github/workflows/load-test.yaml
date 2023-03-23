@@ -7,7 +7,7 @@ env:
   LOAD_TEST_RESOURCE_GROUP: "rg-loadtesting-demo"
 
 jobs:
-  deploy-environment:
+  regression-test:
     runs-on: ubuntu-latest
     steps:
 
@@ -19,7 +19,7 @@ jobs:
     - name: 'Azure Load Testing'
       uses: azure/load-testing@v1
       with:
-        loadTestConfigFile: 'load-test-config.yaml'
+        loadTestConfigFile: 'SampleApp.yaml'
         loadTestResource: ${{ env.LOAD_TEST_RESOURCE }}
         resourceGroup: ${{ env.LOAD_TEST_RESOURCE_GROUP }}
         env: |
@@ -29,3 +29,8 @@ jobs:
             "value": "${{ env.AZURE_WEBAPP_NAME }}"
             }
           ]
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: loadTestResults
+        path: ${{ github.workspace }}/loadTest

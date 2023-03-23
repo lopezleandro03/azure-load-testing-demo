@@ -25,3 +25,16 @@ kubectl scale --replicas=10 deployment altdemo -n altdemo
 ## URLs
 http://azure-load-testing-demo.westeurope.cloudapp.azure.com
 http://azure-load-testing-demo-beefy.westeurope.cloudapp.azure.com
+
+## CI/CD setup
+
+1. Create a principal
+2. Load the secret into the GitHub repository that will host your Actions
+3. Grant RBAC role Load Test Contributor to the princiapl
+
+```
+az ad sp create-for-rbac --name "load-test-cicd" --sdk-auth
+```
+
+
+
